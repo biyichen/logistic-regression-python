@@ -130,7 +130,41 @@ plt.show()
 
 <img src="teamcode-linear-regression.png" class="img-responsive img-circle" alt="teacode">
 
+```
+df1 = df.query('Year < 2002')
+newCol = df1.RS - df1.RA           # This is a data series
+ds=newCol.to_frame()               # Convert this series to a data frame
+ds.columns=['RD']                  # Name the column of this data frame
+df1 = pd.concat([df1,ds],axis=1)   # pandas.pydata.org/pandas-docs/stable/merging.html
+#df1.head()
+df1[['RS','RA','RD']].head()
+```
+#### BEGIN of actual analysis
 
+#### Method 2 - results in warnings
+```
+df1 = df.query('Year < 2002')
+newCol = df1.RS - df1.RA
+df1.loc[:,'RD'] = newCol
+```
+#### Method 3 - results in warnings
+```
+df1 = df.query('Year < 2002')
+df1['RD'] = df1['RS']-df1['RA']
+print(df1['RD'])
+```
+```
+plt.clf()
+plt.scatter(df1['RD'],df1['W'])
+plt.xlabel('Run Difference')
+plt.ylabel('Wins')
+plt.title('Not so surprising')
+plt.axis([-400, 400, 0, 120])
+plt.text(0, 60, 'that it is a +ve relation', color='green', fontsize=15)
+plt.grid(True)
+plt.show()
+```
 
+<img src="difference-linear-regression.png" class="img-responsive img-circle" alt="difference">
 
 
