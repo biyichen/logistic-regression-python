@@ -1,4 +1,163 @@
 # logistic-regression-python
+#### Read in the data
+```
+import pandas as pd
+myDF = pd.read_csv('wirelessdata.csv')
+```
+#### Show the data
+```
+myDF.head()
+```
+#### Check the number of rows
+```
+len(myDF)
+```
+#### If needed, get rid of rows with null / missing values - not necessary
+```
+myDF = myDF[pd.notnull(myDF['VU'])]
+len(myDF)
+```
+#### Drop the unrequired variables
+```
+myDF = myDF.drop(['ValueUtility','ValueHedonistic', 'FeelDeviceDependence','ATUseSophistication','FeelTimeManagingDevice','UseSelfEfficacy'],axis=1)
+myDF.head()
+```
+#### Import the packages
+```
+from patsy import dmatrices
+from sklearn.linear_model import LogisticRegression
+import numpy as np
+```
+#### Create matrices
+```
+y, X = dmatrices('VH ~ TIME + OWNED + SEX + AGE + \
+                       Playfulness + NonPlayfulness', 
+                       myDF,return_type= 'dataframe')
+
+y= np.ravel(y) # if you don't do this you will get a warning in the next cell
+```
+#### sklearn output
+```
+model = LogisticRegression()
+mdl = model.fit(X,y)
+model.score(X,y)                # The "score" is stated in terms of "accurarcy"
+```
+0.66597938144329893
+
+```
+import statsmodels.discrete.discrete_model as sm
+logit = sm.Logit(y,X)
+logit.fit().params
+```
+Optimization terminated successfully.
+         Current function value: 0.619339
+         Iterations 5
+Intercept        -3.345278
+TIME             -0.001130
+OWNED            -0.002455
+SEX               0.795035
+AGE               0.062777
+Playfulness       0.145613
+NonPlayfulness    0.040784
+dtype: float64
+
+#### Note that sex = 1,2--- 1 = female and 2 = male Increases in playful use and noPlayful use - both result in a corresponding increase in the likelihood of finding fun-related value in the smart phone. Time used and time owned result in a decrease in the likelihood of finding fun-related value in the smart phone.
+
+#### What prcentage see fun-related value in their smart phones
+```
+y.mean()
+```
+0.41855670103092785
+#### It seems approx 42% of smart phone users see fun-related value in their phones. This implies that 58% do not see fun-related value in their cell phones. In other words we could have obtained 52% accuracy by always predicting 0 (or 'no' for users seeing fun-related value in their smart phones.)
+
+#### Split the train data and test data
+```
+import numpy as np
+np.random.seed(0)
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
+print(len(X_train))
+print(len(X_test))
+```
+339
+146
+#### C = Inverse of regularization strength; smaller values specify stronger regularization class_weight: wights associated with classes in the form {class_label: weight}. If not given, all classes are supposed to have weight one dual : Dual or primal formulation fit_intercept : Specifies if a constant (a.k.a. bias or intercept) should be added to the decision function. intercept_scaling: In case of imbalanced data (e.g. where the positive examples in the data are very rare) one can take a sample where the proportion of positives is higher. Training a logistic regression on this sample results in higher final predictions. The intercept scaling allows to convert the probabilities so that these reflect the initial data before sampling. max_iter: Maximum number of iterations taken for the solvers to converge. multi_class : Multiclass option can be either ‘ovr’ or ‘multinomial’. If the option chosen is ‘ovr’, then a binary problem is fit for each label. n_jobs : Number of CPU cores used when parallelizing over classes if multi_class=’ovr’. penalty : Used to specify the norm used in the penalization. L1-norm loss function is also known as least absolute deviations (LAD), least absolute errors (LAE). L2-norm loss function is also known as least squares error (LSE). random_state : The seed of the pseudo random number generator to use when shuffling the data solver : choice of solver from ‘newton-cg’, ‘lbfgs’, ‘liblinear’, ‘sag’, ‘saga’ tol : Tolerance for stopping criteria. verbose : it is generally an option for producing detailed logging information warm_start : When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.
+```
+model2 = LogisticRegression()
+model2.fit(X_train, y_train)
+```
+LogisticRegression(C=1.0, class_weight=None, dual=False, fit_intercept=True,
+          intercept_scaling=1, max_iter=100, multi_class='ovr', n_jobs=1,
+          penalty='l2', random_state=None, solver='liblinear', tol=0.0001,
+          verbose=0, warm_start=False)
+
+#### Usually the threshold is .5. The best threshold (or cutoff) point to be used in glm models is the point which maximises the specificity and the sensitivity.
+```
+predicted = model2.predict(X_test)
+print (predicted)
+```
+[ 0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  1.  0.  1.  0.  1.  0.
+  0.  0.  0.  1.  0.  0.  0.  0.  0.  0.  0.  0.  1.  0.  0.  0.  0.  0.
+  0.  1.  1.  0.  0.  1.  1.  1.  0.  1.  1.  0.  0.  0.  1.  1.  0.  1.
+  0.  1.  0.  0.  0.  0.  0.  0.  0.  0.  1.  0.  1.  1.  1.  1.  1.  0.
+  0.  1.  0.  1.  1.  0.  0.  1.  0.  0.  0.  0.  0.  0.  0.  0.  1.  0.
+  1.  1.  1.  0.  0.  0.  0.  0.  1.  0.  0.  0.  0.  1.  0.  0.  0.  0.
+  0.  1.  1.  1.  0.  0.  0.  0.  1.  1.  0.  1.  1.  0.  1.  1.  0.  0.
+  0.  1.  0.  0.  0.  0.  0.  0.  0.  1.  0.  1.  0.  0.  0.  0.  0.  0.
+  0.  1.]
+  
+```
+  myList = []
+for i in range(len(predicted)):
+    myList.append((int(y_test[i]),int(predicted[i])))
+print(myList)
+```
+[(1, 0), (0, 0), (1, 0), (0, 0), (0, 0), (1, 0), (1, 0), (1, 0), (1, 0), (1, 0), (1, 0), (1, 0), (1, 1), (1, 0), (0, 1), (0, 0), (1, 1), (0, 0), (0, 0), (1, 0), (1, 0), (1, 1), (0, 0), (0, 0), (1, 0), (0, 0), (1, 0), (0, 0), (1, 0), (0, 0), (1, 1), (0, 0), (0, 0), (0, 0), (1, 0), (1, 0), (1, 0), (0, 1), (0, 1), (0, 0), (1, 0), (0, 1), (0, 1), (1, 1), (0, 0), (1, 1), (0, 1), (0, 0), (0, 0), (0, 0), (1, 1), (0, 1), (0, 0), (1, 1), (1, 0), (0, 1), (0, 0), (1, 0), (1, 0), (0, 0), (0, 0), (1, 0), (0, 0), (0, 0), (0, 1), (1, 0), (1, 1), (1, 1), (1, 1), (1, 1), (0, 1), (0, 0), (0, 0), (0, 1), (0, 0), (1, 1), (0, 1), (0, 0), (0, 0), (0, 1), (1, 0), (1, 0), (0, 0), (1, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 1), (0, 0), (0, 1), (0, 1), (0, 1), (0, 0), (1, 0), (1, 0), (1, 0), (1, 0), (0, 1), (1, 0), (1, 0), (1, 0), (0, 0), (0, 1), (0, 0), (1, 0), (0, 0), (0, 0), (0, 0), (1, 1), (1, 1), (1, 1), (1, 0), (1, 0), (0, 0), (0, 0), (1, 1), (1, 1), (0, 0), (0, 1), (1, 1), (0, 0), (1, 1), (1, 1), (0, 0), (1, 0), (0, 0), (1, 1), (1, 0), (1, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 1), (0, 0), (0, 1), (1, 0), (0, 0), (1, 0), (1, 0), (0, 0), (0, 0), (0, 0), (1, 1)]
+
+#### generate class probabilities
+```
+probs = model2.predict_proba(X_test)
+print (len(probs))
+```
+146
+
+#### generate evaluation metrics
+```
+from sklearn import metrics
+print (metrics.accuracy_score(y_test, predicted))
+print (metrics.roc_auc_score(y_test, probs[:, 1]))
+```
+0.554794520548
+0.588446969697
+```
+print (metrics.confusion_matrix(y_test, predicted))
+print("-----------------")
+print (metrics.classification_report(y_test, predicted))
+```
+[[58 22]
+ [43 23]]
+-----------------
+             precision    recall  f1-score   support
+
+        0.0       0.57      0.72      0.64        80
+        1.0       0.51      0.35      0.41        66
+
+avg / total       0.55      0.55      0.54       146
+
+
+#### evaluate the model using 10-fold cross-validation
+```
+from sklearn.model_selection import cross_val_score
+scores = cross_val_score(LogisticRegression(), X, y, scoring='accuracy', cv=10)
+print (scores)
+print (scores.mean())
+```
+[ 0.46        0.66        0.65306122  0.6875      0.5625      0.72916667
+  0.625       0.64583333  0.64583333  0.66666667]
+0.633556122449
+
+
+
 # linear-regression-python
 #### import the pandas,numpy,matplotlib.pyplot packages and load the data, read the data to check the variables.
 ```
