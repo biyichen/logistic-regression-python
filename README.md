@@ -167,4 +167,96 @@ plt.show()
 
 <img src="difference-linear-regression.png" class="img-responsive img-circle" alt="difference">
 
+#### Model 1
+```
+from sklearn import linear_model
+from pandas import DataFrame
 
+myData = DataFrame(data = df1, columns = ['W', 'RD'])
+model = linear_model.LinearRegression(fit_intercept = True)
+RD = myData.RD.values.reshape(len(myData), 1)
+W = myData.W.values.reshape(len(myData), 1)
+fit = model.fit(RD, W)
+print ('Intercept: %.4f, Run Difference: %.4f' % (fit.intercept_, fit.coef_))
+
+from sklearn.metrics import r2_score
+pred = model.predict(RD)
+r2 = r2_score(W,pred) 
+print ('R-squared: %.4f' % (r2))
+print()
+print('R-squared: %.4f using alternate method' % fit.score(RD, W)) # Another way to get R2
+```
+Intercept: 80.8814, Run Difference: 0.1058
+R-squared: 0.8808
+
+R-squared: 0.8808 using alternate method
+
+#### Model 2
+
+```
+x = DataFrame(data = df1, columns = ['OBP', 'SLG','BA'])
+xarr = x.as_matrix()
+X = np.array([np.concatenate((v,[1])) for v in xarr])
+model = linear_model.LinearRegression(fit_intercept = True)
+y = DataFrame(data = df1, columns = ['RS'])
+yarr = y.as_matrix()
+fit = model.fit(X,yarr)
+#fit.intercept_
+#fit.coef_
+
+print("Intercept : ", fit.intercept_)
+print("Slope : ", fit.coef_)
+
+from sklearn.metrics import r2_score
+pred = model.predict(X)
+r2 = r2_score(yarr,pred) 
+print ('R-squared: %.4f' % (r2))
+```
+Intercept :  [-788.45704708]
+Slope :  [[ 2917.42140821  1637.92766577  -368.96606009     0.        ]]
+R-squared: 0.9302
+
+#### Remove BA due to reasons of multicollinearity
+```
+x = pd.DataFrame(data = df1, columns = ['OBP', 'SLG'])
+xarr = x.as_matrix()
+X = np.array([np.concatenate((v,[1])) for v in xarr])
+model = linear_model.LinearRegression(fit_intercept = True)
+y = DataFrame(data = df1, columns = ['RS'])
+yarr = y.as_matrix()
+fit = model.fit(X,yarr)
+fit.intercept_
+fit.coef_
+
+from sklearn.metrics import r2_score
+pred = model.predict(X)
+r2 = r2_score(yarr, pred) 
+print ('R-squared: %.4f' % (r2))
+```
+R-squared: 0.9296
+
+#### Model 3
+```
+mydata = DataFrame(data = df1, columns = ['RA','OOBP', 'OSLG'])
+len(mydata)
+mydata1 = mydata.dropna()
+len(mydata1)
+
+x = DataFrame(data = mydata1, columns = ['OOBP', 'OSLG'])
+xarr = x.as_matrix()
+X = np.array([np.concatenate((v,[1])) for v in xarr])
+model = linear_model.LinearRegression(fit_intercept = True)
+y = DataFrame(data = mydata1, columns = ['RA'])
+yarr = y.as_matrix()
+fit = model.fit(X,yarr)
+print("Intercept : ",fit.intercept_)
+print("Slope : ", fit.coef_)
+
+from sklearn.metrics import r2_score
+pred = model.predict(X)
+r2 = r2_score(yarr,pred) 
+print ('R-squared: %.4f' % (r2))
+```
+Intercept :  [-837.37788861]
+Slope :  [[ 2913.59948582  1514.28595842     0.        ]]
+R-squared: 0.9073
