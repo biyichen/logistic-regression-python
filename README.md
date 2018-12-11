@@ -138,6 +138,9 @@ print (metrics.classification_report(y_test, predicted))
 
 avg / total       0.55      0.55      0.54       146
 
+####  Precision is the ratio of correctly predicted positive observations to the total predicted positive observations.  High precision relates to the low false positive rate. We have got 0.55 precision which is not very good.
+#### Recall is the ratio of correctly predicted positive observations to the all observations in actual class - yes. We have got recall of 0.55 which is good for this model as it’s above 0.5.
+#### F1 Score is the weighted average of Precision and Recall. Therefore, this score takes both false positives and false negatives into account. Intuitively it is not as easy to understand as accuracy, but F1 is usually more useful than accuracy, especially if you have an uneven class distribution. Accuracy works best if false positives and false negatives have similar cost. If the cost of false positives and false negatives are very different, it’s better to look at both Precision and Recall. In our case, F1 score is 0.54.
 
 #### evaluate the model using 10-fold cross-validation
 ```
