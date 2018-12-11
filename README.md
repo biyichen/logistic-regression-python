@@ -153,6 +153,23 @@ print (scores.mean())
 
 
 # linear-regression-python
+
+#### Team: A code for the name of the team
+#### League: The Major League Baseball league the team belongs to, either AL (American League) or NL (National League)
+#### Year: The year of the corresponding record
+#### RS: The number of runs scored by the team in that year
+#### RA: The number of runs allowed by the team in that year
+#### W: The number of regular season wins by the team in that year
+#### OBP: The on-base percentage of the team in that year
+#### SLG: The slugging percentage of the team in that year
+#### BA: The batting average of the team in that year
+#### Playoffs: Whether the team made the playoffs in that year (1 for yes, 0 for no)
+#### RankSeason: Among the playoff teams in that year, the ranking of their regular season records (1 is best)
+#### RankPlayoffs: Among the playoff teams in that year, how well they fared in the playoffs. The team winning the World Series gets a RankPlayoffs of 1.
+#### G: The number of games a team played in that year
+#### OOBP: The team's opponents' on-base percentage in that year
+#### OSLG: The team's opponents' slugging percentage in that year
+
 #### import the pandas,numpy,matplotlib.pyplot packages and load the data, read the data to check the variables.
 ```
 import pandas as pd
